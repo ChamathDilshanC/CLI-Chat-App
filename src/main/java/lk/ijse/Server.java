@@ -1,13 +1,14 @@
 package lk.ijse;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class Server {
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+
     public static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(3000);
@@ -20,32 +21,42 @@ public class Server {
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
             Scanner scanner = new Scanner(System.in);
 
-            // Main thread for server input and receiving messages
-            System.out.println("Waiting for client's message...");
+            // Thread for receiving messages
+            Thread receiveThread = new Thread(() -> {
+                try {
+                    while (true) {
+                        String clientMessage = dataInputStream.readUTF();
+                        if (clientMessage.equalsIgnoreCase("exit")) {
+                            System.out.println("\nClient has disconnected.");
+                            break;
+                        }
+                        System.out.print("\r" + ANSI_YELLOW + "Client: " + clientMessage + ANSI_RESET + "\nYou: ");
+                    }
+                } catch (IOException e) {
+                    if (true) {
+                        System.out.println("Client disconnected.");
+                    }
+                }
+            });
+            receiveThread.start();
+
+            // Main thread for sending messages
+            System.out.print("Server: ");
             while (true) {
-                String clientMessage = dataInputStream.readUTF();
-                System.out.println("\nClient: " + clientMessage);
-                if (clientMessage.equalsIgnoreCase("exit")) {
-                    System.out.println("Client has disconnected. Shutting down server...");
+                String message = scanner.nextLine();
+                if (message.equalsIgnoreCase("exit")) {
+                    dataOutputStream.writeUTF(message);
                     break;
                 }
-
-                System.out.print("Enter message: ");
-                String serverMessage = scanner.nextLine();
-
-                dataOutputStream.writeUTF(serverMessage);
+                dataOutputStream.writeUTF(message);
                 dataOutputStream.flush();
-
-                if (serverMessage.equalsIgnoreCase("exit")) {
-                    break;
-                }
-
-                System.out.println("Waiting for client's message...");
+                System.out.print("Server: ");
             }
 
+            System.out.println("Shutting down server...");
             socket.close();
             serverSocket.close();
-            System.out.println("Server Stopped.");
+            scanner.close();
 
         } catch (IOException e) {
             e.printStackTrace();
