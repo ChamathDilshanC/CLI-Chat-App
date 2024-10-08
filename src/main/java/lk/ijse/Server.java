@@ -30,7 +30,7 @@ public class Server {
                             System.out.println("\nClient has disconnected.");
                             break;
                         }
-                        System.out.print("\r" + ANSI_YELLOW + "Client: " + clientMessage + ANSI_RESET + "\nYou: ");
+                        System.out.print("\r" + ANSI_YELLOW + "Client: " + clientMessage + ANSI_RESET + "\nServer: ");
                     }
                 } catch (IOException e) {
                     if (true) {
