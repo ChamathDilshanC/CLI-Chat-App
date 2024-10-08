@@ -15,7 +15,7 @@ public class Server {
             System.out.println("Server Started. Waiting for client...");
 
             Socket socket = serverSocket.accept();
-            System.out.println("Client Connected");
+            System.out.println("Client Connected. Input 'exit' to disconnect.");
 
             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
